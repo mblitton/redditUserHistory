@@ -6,29 +6,63 @@ from urllib.request import urlopen
 #define variables for user input
 
 
-user = input('Hello, who are we searching for?')
+#create a function that searches for user, if no user, input new username or quit
+
+def startSearch():
+    while True:
+        user = input('Hello, who are we searching for?')
+        #basic user search if any result is > 0
+        url = 'https://api.pushshift.io/reddit/search/?author=' + user + '&size=500'
+
+        #open the url
+        response = urlopen(url)
+        #convert url to json
+        data = json.loads(response.read())
+        #find amount of arrays within json
+        tot = len(data['data'])
+        #convert total to string for message
+        strtot = str(tot)
+        
+  #      if tot > 0:
+  #      print("""
+  #      Do you want to see their posts or their comments?
+  #      [1] - posts
+  #      [2] - comments
+  #      Selection:""")
+        if tot == 0:
+            print('username not in database. Would you like to try a different username?\n')
+            ans = input()
+            if ans == 'y':
+                startSearch()
+            elif ans == 'n':
+                quit()
+            else:
+                print('Enter y for yes, n for no\n')
+                break
+        else:
+            startSearch.user = user
+            break    
+    #simple error check, consider putting into some type of while loop so it doesn't exit on incorrect selection.
+startSearch()
 
 print("""
-Do you want to see their posts or their comments?
-[1] - posts
-[2] - comments
-Selection:""")
-#simple error check, consider putting into some type of while loop so it doesn't exit on incorrect selection.
+  #      Do you want to see their posts or their comments?
+  #      [1] - posts
+  #      [2] - comments
+  #      Selection:""")
 while True:
-    search = input()
-    if search == '1':
+    submit = input()
+    if submit == '1':
         search = 'submission'
         break
-    elif search == '2':
+    elif submit == '2':
         search = 'comment'
         break
     else:
         print('Select either 1 or 2')
-        continue
-    
-
+        continue    
 #request the url, input the user's selections into the url
-url = 'https://api.pushshift.io/reddit/' + search + '/search' + '/?author=' + user + '&size=500'
+url = 'https://api.pushshift.io/reddit/' + search + '/search' + '/?author=' + startSearch.user + '&size=500'
 
 #open the url
 response = urlopen(url)
@@ -38,10 +72,22 @@ data = json.loads(response.read())
 tot = len(data['data'])
 #convert total to string for message
 strtot = str(tot)
-
-print('There are ' + strtot + ' '+ search + 's' + '\n')
-if tot == 0:
-    quit()
+while True:        
+    if tot > 0:
+        print('There are ' + strtot + ' '+ search + 's' + '\n')
+        break
+    elif tot == 0:
+        print('There are no results. Would you like to try a different username?\n')
+        ans = input()
+        if ans == 'y':
+            break
+        elif ans == 'n':
+            quit()
+        else:
+            print('Please enter y for yes, n for no\n')
+#        print('There are ' + strtot + ' '+ search + 's' + '\n')
+#        if tot == 0:
+#            quit()
 
 def getcomments():
     while True:
@@ -93,7 +139,6 @@ def getposts():
         
         arr = arr + 1
         amt = amt + 1
-
 
 
 if search == 'comment':
